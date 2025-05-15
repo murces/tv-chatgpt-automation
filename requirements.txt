@@ -1,5 +1,5 @@
 Flask==2.2.4
-pyppeteer-core==1.0.2
+pyppeteer-core
 openai==0.27.8
 python-dotenv==1.0.0
 gunicorn==20.1.0
