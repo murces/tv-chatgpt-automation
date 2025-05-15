@@ -17,7 +17,7 @@ def analyze_image(image_path: str, prompt_text: str) -> str:
         }
     ]
     resp = openai.ChatCompletion.create(
-        model="o4-mini",
+        model="gpt-4o-mini",
         messages=messages
     )
     return resp.choices[0].message.content.strip()
