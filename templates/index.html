@@ -5,17 +5,18 @@
   <title>Grafik Analiz (5m / 1h / 4h)</title>
 </head>
 <body>
-  <h1>Grafik Analiz (5m / 1h / 4h)</h1>
+  <h1>Grafik Analiz</h1>
   <form onsubmit="return false;">
     <label>
-      Coins:
-      <select id="symbols" multiple size="5" style="width: 200px;">
-        <option value="BTCUSDT">BTCUSDT</option>
-        <option value="ETHUSDT">ETHUSDT</option>
-        <option value="SOLUSDT">SOLUSDT</option>
-        <option value="XRPUSDT">XRPUSDT</option>
-        <option value="ADAUSDT">ADAUSDT</option>
-        <!-- İstediğiniz başka coin’leri de ekleyebilirsiniz -->
+      Coin:
+      <input id="symbol" type="text" value="BTCUSDT" style="width: 100px;">
+    </label>
+    <label>
+      Timeframe:
+      <select id="tf">
+        <option value="5m">5m</option>
+        <option value="1h" selected>1h</option>
+        <option value="4h">4h</option>
       </select>
     </label>
     <button onclick="analyze()">Analiz Et</button>
@@ -25,38 +26,28 @@
 
   <script>
     async function analyze() {
-      const sel = document.getElementById("symbols");
-      const symbols = Array.from(sel.selectedOptions).map(o => o.value);
-      if (!symbols.length) {
-        alert("Lütfen en az 1 coin seçin!");
+      const symbol = document.getElementById("symbol").value.trim();
+      const tf = document.getElementById("tf").value;
+      if (!symbol) {
+        alert("Lütfen bir coin sembolü girin!");
         return;
       }
-      const resultEl = document.getElementById("result");
-      resultEl.textContent = "Analiz yapılıyor…";
+      document.getElementById("result").textContent = "Analiz yapılıyor…";
 
       try {
         const res = await fetch("/trigger-analysis", {
           method: "POST",
           headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ symbols })
+          body: JSON.stringify({ symbol, tf })
         });
-
-        const contentType = res.headers.get("content-type") || "";
         if (!res.ok) {
-          // HTTP 4xx/5xx durumları
           const text = await res.text();
           throw new Error(`Sunucu hatası (${res.status}):\n${text}`);
         }
-        if (!contentType.includes("application/json")) {
-          // JSON dışı yanıt (ör: HTML)
-          const text = await res.text();
-          throw new Error(`Beklenmeyen yanıt formatı:\n${text}`);
-        }
-
         const data = await res.json();
-        resultEl.textContent = data.analysis;
+        document.getElementById("result").textContent = data.analysis;
       } catch (err) {
-        resultEl.textContent = `Bir hata oluştu:\n${err.message}`;
+        document.getElementById("result").textContent = "Bir hata oluştu:\n" + err.message;
       }
     }
   </script>
