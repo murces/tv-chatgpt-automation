@@ -1,11 +1,10 @@
 import os
 import asyncio
-from pyppeteer import launch
+from pyppeteer_core import launch   # DİKKAT: burası değişti!
 
-# 1) Buildpack'tan gelen Chrome yolunu oku:
+# Buildpack’ın sağladığı Chrome yolu
 CHROME_PATH = os.getenv("PUPPETEER_EXECUTABLE_PATH") or os.getenv("GOOGLE_CHROME_BIN")
-# 2) Pyppeteer indirmesini pas geç:
-os.environ["PUPPETEER_SKIP_CHROMIUM_DOWNLOAD"] = "true"
+# Pyppeteer-core, download aşamasına geçmez; direkt executablePath’e gider.
 
 LAUNCH_ARGS = [
     "--no-sandbox",
