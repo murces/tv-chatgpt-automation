@@ -11,12 +11,21 @@ def index():
 
 @app.route("/trigger-analysis", methods=["POST"])
 def trigger():
-    print("🟢 [DEBUG] trigger-analysis başladı")        # ← EKLENDİ
+    print("🟢 [DEBUG] trigger-analysis başladı")
     data = request.get_json(silent=True) or {}
-    print(f"🟢 [DEBUG] Gelen JSON: {data}")              # ← EKLENDİ
-    symbol = data.get("symbol", None)
-    tf = data.get("tf", None)
-    print(f"🟢 [DEBUG] symbol={symbol}, tf={tf}")        # ← EKLENDİ
+    symbol = data.get("symbol")
+    tf = data.get("tf")
+
+    print(f"🟢 [DEBUG] symbol={symbol}, tf={tf}")
+    # 1) Ekran görüntüsünü al
+    image_path = capture_chart(symbol, tf)
+    print(f"🟢 [DEBUG] screenshot başarıyla alındı: {image_path}")
+
+    # 2) OpenAI analizine gönder
+    analysis = analyze_image(image_path, f"{symbol} {tf} chart analysis")
+    print("🟢 [DEBUG] OpenAI analizi tamamlandı")
+
+    return jsonify({"analysis": analysis})
 
     # 1) Grafiği yakala
     image_path = capture_chart(symbol, tf)
