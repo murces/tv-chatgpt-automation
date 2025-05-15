@@ -2,7 +2,10 @@ import os
 import asyncio
 from pyppeteer import launch
 
-CHROME_PATH = os.getenv("GOOGLE_CHROME_BIN")
+# 1) Buildpack'tan gelen Chrome yolunu oku:
+CHROME_PATH = os.getenv("PUPPETEER_EXECUTABLE_PATH") or os.getenv("GOOGLE_CHROME_BIN")
+# 2) Pyppeteer indirmesini pas geç:
+os.environ["PUPPETEER_SKIP_CHROMIUM_DOWNLOAD"] = "true"
 
 LAUNCH_ARGS = [
     "--no-sandbox",
@@ -21,7 +24,7 @@ async def _capture(symbol: str, tf: str, output_path: str):
     page = await browser.newPage()
     url = f"https://www.tradingview.com/chart/?symbol=BINANCE%3A{symbol}&interval={tf}"
     await page.goto(url, {"waitUntil": "networkidle2"})
-    await asyncio.sleep(10)
+    await asyncio.sleep(8)  # grafik tam yüklensin
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     await page.screenshot({"path": output_path, "fullPage": True})
     await browser.close()
