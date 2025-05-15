@@ -19,7 +19,7 @@ def capture_chart(symbol: str, tf: str) -> str:
 
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(url)
-    time.sleep(5)  # eskiden 8 sn idi, 5 sn deneyelim
+    time.sleep(4)  # 5s → 4s
 
     os.makedirs("charts", exist_ok=True)
     path = f"charts/{symbol}_{tf}.png"
