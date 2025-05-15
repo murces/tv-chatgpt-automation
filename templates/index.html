@@ -31,7 +31,8 @@
         alert("Lütfen en az 1 coin seçin!");
         return;
       }
-      document.getElementById("result").textContent = "Analiz yapılıyor…";
+      const resultEl = document.getElementById("result");
+      resultEl.textContent = "Analiz yapılıyor…";
 
       try {
         const res = await fetch("/trigger-analysis", {
@@ -39,11 +40,23 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({ symbols })
         });
+
+        const contentType = res.headers.get("content-type") || "";
+        if (!res.ok) {
+          // HTTP 4xx/5xx durumları
+          const text = await res.text();
+          throw new Error(`Sunucu hatası (${res.status}):\n${text}`);
+        }
+        if (!contentType.includes("application/json")) {
+          // JSON dışı yanıt (ör: HTML)
+          const text = await res.text();
+          throw new Error(`Beklenmeyen yanıt formatı:\n${text}`);
+        }
+
         const data = await res.json();
-        document.getElementById("result").textContent = data.analysis;
+        resultEl.textContent = data.analysis;
       } catch (err) {
-        document.getElementById("result").textContent =
-          "Bir hata oluştu: " + err.message;
+        resultEl.textContent = `Bir hata oluştu:\n${err.message}`;
       }
     }
   </script>
