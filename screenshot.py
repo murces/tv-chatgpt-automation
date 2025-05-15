@@ -3,9 +3,8 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
-# Buildpack tarafından tanımlanmış çevresel değişkenler
 chrome_bin = os.getenv("GOOGLE_CHROME_BIN") or os.getenv("CHROME_PATH") or os.getenv("CHROME_SHIM")
-chrome_driver = os.getenv("CHROMEDRIVER_PATH")  # genelde buildpack ayarlar
+chrome_driver = os.getenv("CHROMEDRIVER_PATH")
 
 def capture_chart(symbol: str, tf: str) -> str:
     options = webdriver.ChromeOptions()
@@ -20,7 +19,7 @@ def capture_chart(symbol: str, tf: str) -> str:
 
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(url)
-    time.sleep(8)  # grafik tam yüklensin
+    time.sleep(5)  # eskiden 8 sn idi, 5 sn deneyelim
 
     os.makedirs("charts", exist_ok=True)
     path = f"charts/{symbol}_{tf}.png"
