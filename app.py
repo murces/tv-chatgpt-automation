@@ -1,8 +1,7 @@
 import os
 from flask import Flask, request, jsonify, render_template
 from screenshot import capture_chart
-from analysis import analyze_images
-from concurrent.futures import ThreadPoolExecutor
+from analysis import analyze_image
 
 app = Flask(__name__)
 
@@ -13,28 +12,15 @@ def index():
 @app.route("/trigger-analysis", methods=["POST"])
 def trigger():
     data = request.get_json() or {}
-    symbols = data.get("symbols", [])
-    if not symbols:
-        return jsonify({"analysis": "Error: Hiç coin seçilmedi."}), 400
+    symbol = data.get("symbol")
+    tf = data.get("tf")
+    if not symbol or not tf:
+        return jsonify({"analysis": "Error: Eksik parametre."}), 400
 
-    timeframes = ["5m", "1h", "4h"]
-    tasks = []
-    images_payload = []
-
-    # Aynı anda en fazla 2 Chrome örneği
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        for sym in symbols:
-            for tf in timeframes:
-                tasks.append((sym, tf, executor.submit(capture_chart, sym, tf)))
-        for sym, tf, future in tasks:
-            path = future.result()
-            images_payload.append({
-                "symbol": sym,
-                "tf": tf,
-                "path": path
-            })
-
-    analysis = analyze_images(images_payload)
+    # Screenshot al
+    image_path = capture_chart(symbol, tf)
+    # Analiz et
+    analysis = analyze_image(image_path, f"{symbol} {tf} chart analysis")
     return jsonify({"analysis": analysis})
 
 if __name__ == "__main__":
