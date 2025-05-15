@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grafik Analiz</title>
+</head>
+<body>
+  <h1>Grafik Analiz (5m / 1h / 4h)</h1>
+  <label>
+    Symbol:
+    <input id="symbol" value="BTCUSDT" />
+  </label>
+  <label>
+    Timeframe:
+    <select id="tf">
+      <option value="5m">5m</option>
+      <option value="1h" selected>1h</option>
+      <option value="4h">4h</option>
+    </select>
+  </label>
+  <button onclick="analyze()">Analiz Et</button>
+  <pre id="result" style="white-space: pre-wrap; margin-top: 1em;"></pre>
+
+  <script>
+    async function analyze() {
+      const sym = document.getElementById("symbol").value.trim();
+      const tf = document.getElementById("tf").value;
+      document.getElementById("result").textContent = "Analiz yapılıyor…";
+      const res = await fetch("/trigger-analysis", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({symbol: sym, tf: tf})
+      });
+      const data = await res.json();
+      document.getElementById("result").textContent = data.analysis;
+    }
+  </script>
+</body>
+</html>
