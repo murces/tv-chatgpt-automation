@@ -19,18 +19,15 @@ def trigger():
 
     timeframes = ["5m", "1h", "4h"]
     tasks = []
-    # ThreadPool ile eş zamanlı
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    images_payload = []
+
+    # Aynı anda en fazla 2 Chrome örneği
+    with ThreadPoolExecutor(max_workers=2) as executor:
         for sym in symbols:
             for tf in timeframes:
-                tasks.append(executor.submit(capture_chart, sym, tf))
-        # Hepsi bitene kadar bekle
-        images_payload = []
-        for future in tasks:
+                tasks.append((sym, tf, executor.submit(capture_chart, sym, tf)))
+        for sym, tf, future in tasks:
             path = future.result()
-            # path stringi "charts/SYMTF.png" → sym, tf çıkartmak için:
-            fname = os.path.basename(path).rsplit(".", 1)[0]  # e.g. "BTCUSDT_1h"
-            sym, tf = fname.split("_")
             images_payload.append({
                 "symbol": sym,
                 "tf": tf,
