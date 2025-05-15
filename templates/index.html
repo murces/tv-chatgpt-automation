@@ -2,37 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Grafik Analiz</title>
+  <title>Grafik Analiz (5m / 1h / 4h)</title>
 </head>
 <body>
   <h1>Grafik Analiz (5m / 1h / 4h)</h1>
-  <label>
-    Symbol:
-    <input id="symbol" value="BTCUSDT" />
-  </label>
-  <label>
-    Timeframe:
-    <select id="tf">
-      <option value="5m">5m</option>
-      <option value="1h" selected>1h</option>
-      <option value="4h">4h</option>
-    </select>
-  </label>
-  <button onclick="analyze()">Analiz Et</button>
+  <form onsubmit="return false;">
+    <label>
+      Coins:
+      <select id="symbols" multiple size="5" style="width: 200px;">
+        <option value="BTCUSDT">BTCUSDT</option>
+        <option value="ETHUSDT">ETHUSDT</option>
+        <option value="SOLUSDT">SOLUSDT</option>
+        <option value="XRPUSDT">XRPUSDT</option>
+        <option value="ADAUSDT">ADAUSDT</option>
+        <!-- İstediğiniz başka coin’leri de ekleyebilirsiniz -->
+      </select>
+    </label>
+    <button onclick="analyze()">Analiz Et</button>
+  </form>
+
   <pre id="result" style="white-space: pre-wrap; margin-top: 1em;"></pre>
 
   <script>
     async function analyze() {
-      const sym = document.getElementById("symbol").value.trim();
-      const tf = document.getElementById("tf").value;
+      const sel = document.getElementById("symbols");
+      const symbols = Array.from(sel.selectedOptions).map(o => o.value);
+      if (!symbols.length) {
+        alert("Lütfen en az 1 coin seçin!");
+        return;
+      }
       document.getElementById("result").textContent = "Analiz yapılıyor…";
-      const res = await fetch("/trigger-analysis", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({symbol: sym, tf: tf})
-      });
-      const data = await res.json();
-      document.getElementById("result").textContent = data.analysis;
+
+      try {
+        const res = await fetch("/trigger-analysis", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ symbols })
+        });
+        const data = await res.json();
+        document.getElementById("result").textContent = data.analysis;
+      } catch (err) {
+        document.getElementById("result").textContent =
+          "Bir hata oluştu: " + err.message;
+      }
     }
   </script>
 </body>
